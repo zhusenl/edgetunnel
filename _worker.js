@@ -470,9 +470,9 @@ function handleConnection(ws, request, FIXED_UUID) {
                     reconnect();
                 }
             }
-        }， KEEPALIVE / 3);
+        }, KEEPALIVE / 3);
         timers.health = setInterval(() => {
-            if (bytesReceived && Date。当前() - lastData > STALL_TIMEOUT) {
+            if (bytesReceived && Date.now() - lastData > STALL_TIMEOUT) {
                 stallCount++;
                 console.log(`Stall detected (${stallCount}/${MAX_STALL}), ${Date.now() - lastData}ms since last data`);
                 if (stallCount >= MAX_STALL) reconnect();
@@ -506,7 +506,7 @@ function handleConnection(ws, request, FIXED_UUID) {
         }
     }
 
-    ws。addEventListener('message'， async evt => {
+    ws.addEventListener('message', async evt => {
         try {
             if (isFirstMsg) {
                 isFirstMsg = false;
@@ -514,38 +514,38 @@ function handleConnection(ws, request, FIXED_UUID) {
                 let firstData = evt.data;
                 const earlyData = processEarlyData(earlyDataHeader);
                 if (earlyData) {
-                    const combined = new Uint8Array(earlyData。length + firstData.byteLength);
-                    combined。set(earlyData);
-                    combined。set(new Uint8Array(firstData), earlyData.length);
-                    firstData = combined。buffer;
+                    const combined = new Uint8Array(earlyData.length + firstData.byteLength);
+                    combined.set(earlyData);
+                    combined.set(new Uint8Array(firstData), earlyData.length);
+                    firstData = combined.buffer;
                 }
 
                 const bytes = new Uint8Array(firstData);
                 if (bytes.byteLength >= 58 && bytes[56] === 0x0d && bytes[57] === 0x0a) ({ socket, writer, reader, info } = await 处理木马握手(firstData));
-                else ({ socket， writer, reader, info } = await 处理魏烈思握手(firstData));
+                else ({ socket, writer, reader, info } = await 处理魏烈思握手(firstData));
                 startTimers();
                 readLoop();
             } else {
-                lastData = Date。当前();
+                lastData = Date.now();
                 if (socket && writer) {
                     await writer.write(evt.data);
                 } else {
-                    dataBuffer。push(evt。data);
+                    dataBuffer.push(evt.data);
                 }
             }
         } catch (err) {
-            console。error('Connection error:'， err。message);
+            console.error('Connection error:', err.message);
             cleanup();
-            ws。close(1006， 'Connection abnormal');
+            ws.close(1006, 'Connection abnormal');
         }
     });
 
-    ws。addEventListener('close'， cleanup);
-    ws。addEventListener('error', cleanup);
+    ws.addEventListener('close', cleanup);
+    ws.addEventListener('error', cleanup);
 }
 
-function parseAddress(bytes， offset， addrType) {
-    let host， length, endOffset;
+function parseAddress(bytes, offset, addrType) {
+    let host, length, endOffset;
     switch (addrType) {
         case 1: // IPv4
             length = 4;
